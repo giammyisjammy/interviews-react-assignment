@@ -15,8 +15,8 @@ import React, { useState } from 'react';
 
 export type ProductCardProps = {
   product: Product;
-  onAdd: () => void;
-  onRemove: () => void;
+  onAdd: () => Promise<void>;
+  onRemove: () => Promise<void>;
 };
 
 export const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(
@@ -45,7 +45,6 @@ export const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(
       }
     };
 
-    product.id === 1 && console.log('product', product);
     return (
       <Card style={{ width: '100%' }} ref={ref}>
         <CardMedia component="img" height="150" image={product.imageUrl} />
