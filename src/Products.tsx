@@ -1,15 +1,21 @@
-import { Box, Grid } from '@mui/material';
+import useSWR from 'swr';
 import useSWRInfinite, { type SWRInfiniteKeyLoader } from 'swr/infinite';
 import { useInView } from 'react-cool-inview';
 
-import { HeavyComponent } from './HeavyComponent.tsx';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import Grid from '@mui/material/Grid';
+// import { HeavyComponent } from './HeavyComponent.tsx';
 import { ProductCard } from './ProductCard.tsx';
 
 import fetcher from './helpers/fetcher.ts';
 
 import type { Cart, Product } from './types.ts';
+import Alert from '@mui/material/Alert';
+import Backdrop from '@mui/material/Backdrop';
+import { HeavyComponent } from './HeavyComponent.tsx';
 
-const limit = 10;
+const PAGE_SIZE = 10;
 
 type ProductPage = {
   hasMore: boolean;
@@ -26,18 +32,37 @@ type ProductPage = {
  * @param previousPageData
  * @returns
  */
-const getKey: SWRInfiniteKeyLoader<ProductPage> = (
+const getProductsKey: SWRInfiniteKeyLoader<ProductPage> = (
   pageIndex,
   previousPageData
 ) => {
   if (previousPageData && !previousPageData.hasMore) return null; // reached the end
-  return `/products?page=${pageIndex}&limit=${limit}`; // SWR key
+  return `/products?page=${pageIndex}&limit=${PAGE_SIZE}`; // SWR key
 };
 
-export type ProductsProps = {
-  onCartChange: (cart: Cart) => void;
-};
-export const Products = ({ onCartChange }: ProductsProps) => {
+// Little trick to give a type to an empty array
+type TypedEmptyList = <T>() => Array<T>;
+const emptyTypedList: TypedEmptyList = () => [];
+
+export const Products = () => {
+  const { data: cart, mutate: mutateCart } = useSWR<Cart, Error>('/cart');
+
+  async function addToCart(productId: number, quantity: number) {
+    try {
+      const cart: Cart = await fetcher('/cart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ productId, quantity }),
+      });
+
+      mutateCart(cart);
+    } catch (error: unknown) {
+      // TODO maybe notify user of failure
+    }
+  }
+
   // This hook accepts a function that returns the request key, a fetcher
   // function, and options. It returns all the values that useSWR returns,
   // including 2 extra values: the page size and a page size setter,
@@ -45,14 +70,17 @@ export const Products = ({ onCartChange }: ProductsProps) => {
   //
   // In infinite loading, one page is one request, and our goal is to fetch
   // multiple pages and render them.
-  const {
-    data: productsPages,
-    isLoading,
-    error,
-    size,
-    setSize,
-    mutate,
-  } = useSWRInfinite<ProductPage, Error>(getKey, fetcher);
+  const { data, isLoading, isValidating, error, size, setSize } =
+    useSWRInfinite<ProductPage, Error>(getProductsKey);
+  const productsPages = data
+    ? emptyTypedList<ProductPage>().concat(...data)
+    : [];
+  const isLoadingMore = Boolean(
+    isLoading || (size > 0 && data && typeof data[size - 1] === 'undefined')
+  );
+  const isEmpty = data?.[0] === undefined;
+  const isReachingEnd = Boolean(!isEmpty || (data && data[size - 1].hasMore));
+  const isRefreshing = Boolean(isValidating && data && data.length === size);
 
   // A React hook that monitors an element enters or leaves the viewport
   const { observe } = useInView({
@@ -69,110 +97,52 @@ export const Products = ({ onCartChange }: ProductsProps) => {
   // When it comes to render a large lists, performance will be a problem.
   // In that case, switching to react-cool-virtual can help you out!
 
-  // function addToCart(productId: number, quantity: number) {
-  //   mutate(
-  //     productsPages?.map(({ products, ...page }) => ({
-  //       ...page,
-  //       products: products.map((product) => {
-  //         if (product.id === productId) {
-  //           return {
-  //             ...product,
-  //             loading: true,
-  //           };
-  //         }
-  //         return product;
-  //       }),
-  //     }))
-  //   );
-  //   fetch('/cart', {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify({ productId, quantity }),
-  //   }).then(async (response) => {
-  //     if (response.ok) {
-  //       const cart = await response.json();
-  //       mutate(
-  //         productsPages?.map(({ products, ...page }) => ({
-  //           ...page,
-  //           products: products.map((product) => {
-  //             if (product.id === productId) {
-  //               return {
-  //                 ...product,
-  //                 itemInCart: (product.itemInCart || 0) + quantity,
-  //                 loading: false,
-  //               };
-  //             }
-  //             return product;
-  //           }),
-  //         }))
-  //       );
-  //       onCartChange(cart);
-  //     }
-  //   });
-  // }
-
-  async function addToCart(productId: number, quantity: number) {
-    try {
-      const cart: Cart = await fetcher('/cart', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ productId, quantity }),
-      });
-      console.log('updated cart', cart);
-
-      mutate(
-        productsPages?.map(({ products, ...page }) => ({
-          ...page,
-          products: products.map((product) => {
-            if (product.id === productId) {
-              return {
-                ...product,
-                itemInCart: (product.itemInCart || 0) + quantity,
-              };
-            }
-            return product;
-          }),
-        }))
-      );
-      onCartChange(cart);
-    } catch (error: unknown) {
-      // TODO maybe notify user of failure
-    }
-  }
-
-  if (error) return <div>failed to load</div>;
-
-  if (isLoading || !productsPages) return <div>loading...</div>;
-
+  console.log('isEmpty', isEmpty, data?.[0]);
   return (
     <Box overflow="scroll" height="100%">
-      <Grid container spacing={2} p={2}>
-        {productsPages.map(({ products }, i) =>
-          // `productsPages` is an array of each page's API response.
-          products.map((product, k) => {
-            /**
-             * Should only observe the last item of the list
-             */
-            const shouldObserve = (i + 1) * (k + 1) === size * limit;
-            return (
-              <Grid item xs={4} key={product.id}>
-                {/* Do not remove this */}
-                <HeavyComponent />
-                <ProductCard
-                  product={product}
-                  onAdd={() => addToCart(product.id, 1)}
-                  onRemove={() => addToCart(product.id, -1)}
-                  ref={shouldObserve ? observe : null}
-                />
-              </Grid>
-            );
-          })
-        )}
-      </Grid>
+      {error ? (
+        // error UI
+        <Alert severity="warning">
+          Something went wrong. Please try again later.
+        </Alert>
+      ) : isLoading || !productsPages ? (
+        // loading UI
+        <CircularProgress sx={{ m: 2 }} />
+      ) : // settled UI
+      isEmpty ? (
+        <Alert severity="info">No products available.</Alert>
+      ) : (
+        <Grid container spacing={2} p={2}>
+          {productsPages.map(({ products }, i) =>
+            // `productsPages` is an array of each page's API response.
+            products.map((product, k) => {
+              // Should only observe the last item of the list
+              const shouldObserve = (i + 1) * (k + 1) === size * PAGE_SIZE;
+              const quantity =
+                cart?.items.find((x) => x.product.id === product.id)
+                  ?.quantity || 0;
+              return (
+                <Grid item xs={4} key={product.id}>
+                  {/* Do not remove this */}
+                  <HeavyComponent />
+                  <ProductCard
+                    quantity={quantity}
+                    product={product}
+                    onAdd={() => addToCart(product.id, 1)}
+                    onRemove={() => addToCart(product.id, -1)}
+                    ref={shouldObserve ? observe : null}
+                  />
+                </Grid>
+              );
+            })
+          )}
+          {isLoadingMore && (
+            <Grid item key="loading-spinner">
+              <CircularProgress />
+            </Grid>
+          )}
+        </Grid>
+      )}
     </Box>
   );
 };

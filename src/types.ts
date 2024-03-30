@@ -9,7 +9,7 @@ export type Product = {
 };
 
 export type Cart = {
-  items: Product[];
+  items: { product: Product; quantity: number }[];
   totalPrice: number;
   totalItems: number;
 };

@@ -1,16 +1,14 @@
-import { useState } from 'react';
+import useSWR from 'swr';
+
 import { Box, CssBaseline } from '@mui/material';
 import SearchAppBar from './SearchAppBar.tsx';
 import { Categories } from './Categories.tsx';
 import { Products } from './Products.tsx';
+
 import type { Cart } from './types.ts';
 
 function App() {
-  const [cart, setCart] = useState<Cart>();
-
-  function onCartChange(cart: Cart) {
-    setCart(cart);
-  }
+  const { data: cart } = useSWR<Cart, Error>('/cart');
 
   return (
     <Box height="100vh" display="flex" flexDirection="column">
@@ -22,7 +20,7 @@ function App() {
       <Box flex={1} display="flex" flexDirection="row">
         <Categories />
         <Box flex={1}>
-          <Products onCartChange={onCartChange} />
+          <Products />
         </Box>
       </Box>
     </Box>

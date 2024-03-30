@@ -15,15 +15,15 @@ import React, { useState } from 'react';
 
 export type ProductCardProps = {
   product: Product;
+  quantity: number;
   onAdd: () => Promise<void>;
   onRemove: () => Promise<void>;
 };
 
 export const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(
-  ({ product, onAdd, onRemove }, ref) => {
+  ({ product, quantity = 0, onAdd, onRemove }, ref) => {
     const [isLoading, setIsLoading] = useState(false);
     const handleAdd = async () => {
-      console.log('handleAdd');
       setIsLoading(true);
       try {
         await onAdd();
@@ -34,7 +34,6 @@ export const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(
       }
     };
     const handleRemove = async () => {
-      console.log('handleRemove');
       setIsLoading(true);
       try {
         await onRemove();
@@ -87,7 +86,7 @@ export const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(
             </IconButton>
 
             <Typography variant="body1" component="div" mx={1}>
-              {product.itemInCart || 0}
+              {quantity}
             </Typography>
 
             <IconButton
