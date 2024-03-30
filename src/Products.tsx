@@ -96,7 +96,6 @@ export const Products = () => {
   // When it comes to render a large lists, performance will be a problem.
   // In that case, switching to react-cool-virtual can help you out!
 
-  console.log('isEmpty', isEmpty, data?.[0]);
   return (
     <Box overflow="scroll" height="100%">
       {error ? (
