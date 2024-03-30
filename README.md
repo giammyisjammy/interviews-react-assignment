@@ -1,9 +1,13 @@
 <!---
 Hi! We're happy you opened this file, not everyone does!
-To let us know you did, paste a capybara picture 
-in the How to Run section 😊 
+To let us know you did, paste a capybara picture
+in the How to Run section 😊
 These will be extra points for you!
 -->
+
+![A capybara wearing blue and green clothes, the same as Xtream logo](capybara.png)
+
+> A capybara wearing blue and green clothes, the same as Xtream logo
 
 # React Interview Assignment
 
