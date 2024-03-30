@@ -12,7 +12,6 @@ import fetcher from './helpers/fetcher.ts';
 
 import type { Cart, Product } from './types.ts';
 import Alert from '@mui/material/Alert';
-import Backdrop from '@mui/material/Backdrop';
 import { HeavyComponent } from './HeavyComponent.tsx';
 
 const PAGE_SIZE = 10;
@@ -70,8 +69,10 @@ export const Products = () => {
   //
   // In infinite loading, one page is one request, and our goal is to fetch
   // multiple pages and render them.
-  const { data, isLoading, isValidating, error, size, setSize } =
-    useSWRInfinite<ProductPage, Error>(getProductsKey);
+  const { data, isLoading, error, size, setSize } = useSWRInfinite<
+    ProductPage,
+    Error
+  >(getProductsKey);
   const productsPages = data
     ? emptyTypedList<ProductPage>().concat(...data)
     : [];
@@ -79,8 +80,6 @@ export const Products = () => {
     isLoading || (size > 0 && data && typeof data[size - 1] === 'undefined')
   );
   const isEmpty = data?.[0] === undefined;
-  const isReachingEnd = Boolean(!isEmpty || (data && data[size - 1].hasMore));
-  const isRefreshing = Boolean(isValidating && data && data.length === size);
 
   // A React hook that monitors an element enters or leaves the viewport
   const { observe } = useInView({
