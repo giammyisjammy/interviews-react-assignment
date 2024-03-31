@@ -4,24 +4,27 @@ import { Categories } from './Categories.tsx';
 import { Products } from './Products.tsx';
 
 import { useCart } from './common/queries.ts';
+import { Providers } from './common/Providers.tsx';
 
 function App() {
   const { data: cart } = useCart();
 
   return (
-    <Box height="100vh" display="flex" flexDirection="column">
-      <CssBaseline />
-      <SearchAppBar
-        quantity={cart?.totalItems || 0}
-        price={cart?.totalPrice || 0}
-      />
-      <Box flex={1} display="flex" flexDirection="row">
-        <Categories />
-        <Box flex={1}>
-          <Products />
+    <Providers>
+      <Box height="100vh" display="flex" flexDirection="column">
+        <CssBaseline />
+        <SearchAppBar
+          quantity={cart?.totalItems || 0}
+          price={cart?.totalPrice || 0}
+        />
+        <Box flex={1} display="flex" flexDirection="row">
+          <Categories />
+          <Box flex={1}>
+            <Products />
+          </Box>
         </Box>
       </Box>
-    </Box>
+    </Providers>
   );
 }
 
