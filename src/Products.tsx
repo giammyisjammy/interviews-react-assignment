@@ -1,18 +1,38 @@
+import React from 'react';
 import { useInView } from 'react-cool-inview';
 
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Grid from '@mui/material/Grid';
+import Snackbar, { SnackbarProps } from '@mui/material/Snackbar';
 import { HeavyComponent } from './HeavyComponent.tsx';
 import { ProductCard } from './ProductCard.tsx';
 
 import { useCart, useProducts } from './common/queries.ts';
 import { useAddToCart } from './common/mutations.ts';
 
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
+
 const PAGE_SIZE = 10;
 
 export const Products = () => {
+  // I already sense that this could be moved in a component but for now I'll
+  // keep it as is to avoid abstracting a behaviour used only once on the whole
+  // project
+  const [showErrorToast, setShowToast] = React.useState(false);
+  const handleCloseToast = (
+    _event: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setShowToast(false);
+  };
+
   const { data: cart } = useCart();
   const addToCart = useAddToCart();
 
@@ -71,10 +91,18 @@ export const Products = () => {
                     quantity={quantity}
                     product={product}
                     onAdd={async () => {
-                      await addToCart(product.id, 1);
+                      try {
+                        await addToCart(product.id, 1);
+                      } catch (error: unknown) {
+                        setShowToast(true);
+                      }
                     }}
                     onRemove={async () => {
-                      await addToCart(product.id, -1);
+                      try {
+                        await addToCart(product.id, -1);
+                      } catch (error: unknown) {
+                        setShowToast(true);
+                      }
                     }}
                     ref={isLastItem ? observe : null}
                   />
@@ -89,6 +117,34 @@ export const Products = () => {
           )}
         </Grid>
       )}
+      <ErrorFeedback open={showErrorToast} onClose={handleCloseToast} />
     </Box>
   );
 };
+
+type ErrorFeedbackProps = Omit<SnackbarProps, 'onClose'> & {
+  onClose?: (event: React.SyntheticEvent | Event, reason?: string) => void;
+};
+function ErrorFeedback({ onClose, ...props }: ErrorFeedbackProps) {
+  const action = (
+    <React.Fragment>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={onClose}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  );
+  return (
+    <Snackbar
+      {...props}
+      autoHideDuration={6000}
+      action={action}
+      onClose={onClose}
+      message="An error occurred, please try again later."
+    />
+  );
+}

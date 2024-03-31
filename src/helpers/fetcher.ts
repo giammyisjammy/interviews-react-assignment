@@ -27,6 +27,7 @@ function parseJSON(response: Response) {
  * @param  {Response} response   A response from a network request
  *
  * @return {Response|undefined} Returns either the response, or throws an error
+ * @throws {ResponseError}
  */
 export function checkStatus(response: Response) {
   if (response.status >= 200 && response.status < 300) {
@@ -44,6 +45,7 @@ export function checkStatus(response: Response) {
  * @param  {object} [options] The options we want to pass to "fetch"
  *
  * @return {object}           The response data
+ * @throws {AbortError | NotAllowedError | TypeError | InvalidJsonError | ResponseError}
  */
 export async function fetcher(url: RequestInfo | URL, options?: RequestInit) {
   const fetchResponse = await fetch(url, options);
