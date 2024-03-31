@@ -1,14 +1,12 @@
-import useSWR from 'swr';
-
 import { Box, CssBaseline } from '@mui/material';
 import SearchAppBar from './SearchAppBar.tsx';
 import { Categories } from './Categories.tsx';
 import { Products } from './Products.tsx';
 
-import type { Cart } from './types.ts';
+import { useCart } from './common/queries.ts';
 
 function App() {
-  const { data: cart } = useSWR<Cart, Error>('/cart');
+  const { data: cart } = useCart();
 
   return (
     <Box height="100vh" display="flex" flexDirection="column">

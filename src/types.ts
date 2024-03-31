@@ -8,6 +8,12 @@ export type Product = {
   loading: boolean;
 };
 
+export type ProductPage = {
+  hasMore: boolean;
+  products: Product[];
+  total: number;
+};
+
 export type Cart = {
   items: { product: Product; quantity: number }[];
   totalPrice: number;
