@@ -1,10 +1,9 @@
 import { useCallback, useState, type ReactNode } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
+import IconButton, { type IconButtonProps } from '@mui/material/IconButton';
 
 import { ToastContext } from './ToastContext';
 import { ToastContainer, ToastContainerProps } from './ToastContainer';
-
-import CloseIcon from '@mui/icons-material/Close';
-import IconButton, { IconButtonProps } from '@mui/material/IconButton';
 
 type CloseToastHandler = ToastContainerProps['onClose'];
 type Props = {
@@ -12,6 +11,12 @@ type Props = {
   autoHideDuration: number;
 };
 export type { Props as ToastProviderProps };
+
+const CloseAction = ({ onClick }: Pick<IconButtonProps, 'onClick'>) => (
+  <IconButton size="small" aria-label="close" color="inherit" onClick={onClick}>
+    <CloseIcon fontSize="small" />
+  </IconButton>
+);
 
 export function ToastProvider({ children, autoHideDuration }: Props) {
   const [toastProps, setToastProps] = useState<ToastContainerProps | null>(
@@ -56,9 +61,4 @@ export function ToastProvider({ children, autoHideDuration }: Props) {
     </ToastContext.Provider>
   );
 }
-
-const CloseAction = ({ onClick }: Pick<IconButtonProps, 'onClick'>) => (
-  <IconButton size="small" aria-label="close" color="inherit" onClick={onClick}>
-    <CloseIcon fontSize="small" />
-  </IconButton>
-);
+// asd

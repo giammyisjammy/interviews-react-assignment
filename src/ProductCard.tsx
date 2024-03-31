@@ -1,3 +1,4 @@
+import { useState, forwardRef } from 'react';
 import {
   Box,
   Card,
@@ -10,8 +11,8 @@ import {
 } from '@mui/material';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
-import { Product } from './types';
-import React, { useState } from 'react';
+
+import type { Product } from '@/types';
 
 export type ProductCardProps = {
   product: Product;
@@ -20,7 +21,7 @@ export type ProductCardProps = {
   onRemove: () => Promise<void>;
 };
 
-export const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(
+export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
   ({ product, quantity = 0, onAdd, onRemove }, ref) => {
     const [isLoading, setIsLoading] = useState(false);
     const handleAdd = async () => {

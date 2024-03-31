@@ -1,5 +1,6 @@
 import { createContext } from 'react';
-import { ToastContainerProps } from './ToastContainer';
+
+import type { ToastContainerProps } from './ToastContainer.tsx';
 
 export const ToastContext = createContext({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -1,10 +1,11 @@
 import { Box, CssBaseline } from '@mui/material';
-import SearchAppBar from './SearchAppBar.tsx';
-import { Categories } from './Categories.tsx';
-import { Products } from './Products.tsx';
 
 import { useCart } from './common/queries.ts';
 import { Providers } from './common/Providers.tsx';
+
+import SearchAppBar from './SearchAppBar';
+import { Categories } from './Categories';
+import { Products } from './Products';
 
 function App() {
   const { data: cart } = useCart();

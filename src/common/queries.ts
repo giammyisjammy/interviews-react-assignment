@@ -1,7 +1,9 @@
-import useSWRInfinite from 'swr/infinite';
-import { Cart, ProductPage } from '../types';
-import { emptyTypedList } from './utils';
 import useSWR from 'swr';
+import useSWRInfinite from 'swr/infinite';
+
+import type { Cart, ProductPage } from '@/types';
+
+import { emptyTypedList } from './utils';
 
 /**
  * Collection of functions to get the SWR key of each page,

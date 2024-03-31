@@ -1,17 +1,14 @@
-import React from 'react';
 import { useInView } from 'react-cool-inview';
-
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Grid from '@mui/material/Grid';
+
 import { HeavyComponent } from './HeavyComponent.tsx';
 import { ProductCard } from './ProductCard.tsx';
-
+import { useToast } from './Toast/useToast.ts';
 import { useCart, useProducts } from './common/queries.ts';
 import { useAddToCart } from './common/mutations.ts';
-
-import { useToast } from './Toast/useToast.ts';
 
 const PAGE_SIZE = 10;
 

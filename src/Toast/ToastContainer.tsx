@@ -1,7 +1,7 @@
-import Alert, { AlertProps } from '@mui/material/Alert';
+import Alert, { type AlertProps } from '@mui/material/Alert';
 import Snackbar, {
-  SnackbarCloseReason,
-  SnackbarProps,
+  type SnackbarCloseReason,
+  type SnackbarProps,
 } from '@mui/material/Snackbar';
 
 export type ToastContainerProps = Omit<SnackbarProps, 'onClose'> & {
