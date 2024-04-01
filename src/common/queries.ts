@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 import useSWRInfinite from 'swr/infinite';
 
-import type { Cart, ProductPage } from '@/types';
+import type { Cart, ProductPage } from '../types';
 
 import { emptyTypedList } from './utils';
 
