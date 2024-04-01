@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -7,6 +9,8 @@ import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
 import { Badge } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+
+import { useDebounce } from 'react-use';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -51,7 +55,43 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-export default function SearchAppBar({ quantity, price }: { quantity: number, price: number }) {
+export default function SearchAppBar({
+  quantity,
+  price,
+  onChange,
+}: {
+  quantity: number;
+  price: number;
+  onChange: (searchTerm: string) => void;
+}) {
+  // const [isLoading, setIsLoading] = useState(false);
+  const [searchKey, setSearchKey] = useState('');
+
+  const [debouncedKey, setDebouncedKey] = useState('');
+  useDebounce(
+    () => {
+      // setIsLoading('Typing stopped');
+      setDebouncedKey(searchKey);
+    },
+    2000,
+    [searchKey]
+  );
+
+  useEffect(() => {
+    const handleSearch = async () => {
+      // setIsLoading(true);
+      try {
+        await onChange(debouncedKey);
+      } catch (error) {
+        // noop
+      } finally {
+        // setIsLoading(false);
+      }
+    };
+
+    handleSearch();
+  }, [debouncedKey]);
+
   return (
     <Box>
       <AppBar position="relative">
@@ -66,11 +106,16 @@ export default function SearchAppBar({ quantity, price }: { quantity: number, pr
           </Typography>
           <Search>
             <SearchIconWrapper>
-              <SearchIcon/>
+              <SearchIcon />
             </SearchIconWrapper>
             <StyledInputBase
               placeholder="Search…"
               inputProps={{ 'aria-label': 'search' }}
+              value={searchKey}
+              onChange={({ currentTarget }) => {
+                // setIsLoading(true);
+                setSearchKey(currentTarget.value);
+              }}
             />
           </Search>
           <Box display="flex" flexDirection="row" mx={2}>
@@ -82,7 +127,7 @@ export default function SearchAppBar({ quantity, price }: { quantity: number, pr
             </Typography>
           </Box>
           <Badge badgeContent={quantity || 0} color="secondary">
-            <ShoppingCartIcon/>
+            <ShoppingCartIcon />
           </Badge>
         </Toolbar>
       </AppBar>

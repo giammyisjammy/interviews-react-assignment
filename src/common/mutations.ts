@@ -12,7 +12,13 @@ export function useAddToCart() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ productId, quantity }),
-      })
+      }),
+      {
+        populateCache: (updatedCart) => updatedCart,
+        // Since the API already gives us the updated information,
+        // we don't need to revalidate here.
+        revalidate: false,
+      }
     );
   };
 }
