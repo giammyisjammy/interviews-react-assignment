@@ -7,12 +7,22 @@ import Grid from '@mui/material/Grid';
 import { HeavyComponent } from './HeavyComponent.tsx';
 import { ProductCard } from './ProductCard.tsx';
 import { useToast } from './Toast/useToast.ts';
-import { useCart, useProducts } from './common/queries.ts';
+import { UseProductsReturns } from './common/queries.ts';
 import { useAddToCart } from './common/mutations.ts';
 
-const PAGE_SIZE = 10;
-
-export const Products = () => {
+export type ProductsProps = UseProductsReturns & {
+  pageSize: number;
+};
+export const Products = ({
+  setSize,
+  error,
+  isLoading,
+  isEmpty,
+  size,
+  isLoadingMore,
+  data: productsPages,
+  pageSize,
+}: ProductsProps) => {
   const { showToast } = useToast();
   const showCartError = () =>
     showToast({
@@ -20,18 +30,7 @@ export const Products = () => {
       message: 'An error occurred, please try again later.',
     });
 
-  const { data: cart } = useCart();
   const addToCart = useAddToCart();
-
-  const {
-    data: productsPages,
-    isLoading,
-    error,
-    size,
-    setSize,
-    isLoadingMore,
-    isEmpty,
-  } = useProducts(PAGE_SIZE);
 
   // A React hook that monitors an element enters or leaves the viewport
   const { observe } = useInView({
@@ -66,16 +65,13 @@ export const Products = () => {
           {productsPages.map(({ products }, i) =>
             // `productsPages` is an array of each page's API response.
             products.map((product, k) => {
-              const isLastItem = (i + 1) * (k + 1) === size * PAGE_SIZE;
-              const quantity =
-                cart?.items.find((x) => x.product.id === product.id)
-                  ?.quantity || 0;
+              const isLastItem = (i + 1) * (k + 1) === size * pageSize;
+
               return (
                 <Grid item xs={4} key={product.id}>
                   {/* Do not remove this */}
                   <HeavyComponent />
                   <ProductCard
-                    quantity={quantity}
                     product={product}
                     onAdd={async () => {
                       try {

@@ -12,17 +12,18 @@ import {
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 
-import type { Product } from '@/types';
+import type { Product } from './types';
+import { useCart } from './common/queries';
 
 export type ProductCardProps = {
   product: Product;
-  quantity: number;
+  // quantity: number;
   onAdd: () => Promise<void>;
   onRemove: () => Promise<void>;
 };
 
 export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
-  ({ product, quantity = 0, onAdd, onRemove }, ref) => {
+  ({ product, onAdd, onRemove }, ref) => {
     const [isLoading, setIsLoading] = useState(false);
     const handleAdd = async () => {
       setIsLoading(true);
@@ -44,6 +45,10 @@ export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
         setIsLoading(false);
       }
     };
+
+    const { data: cart } = useCart();
+    const quantity =
+      cart?.items.find((x) => x.product.id === product.id)?.quantity || 0;
 
     return (
       <Card style={{ width: '100%' }} ref={ref}>

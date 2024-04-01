@@ -15,9 +15,11 @@
     "@mui/icons-material": "^5.15.10",
     "@mui/material": "^5.15.10",
     "msw": "^2.2.1",
+    "query-string": "^9.0.0",
     "react": "^18.2.0",
     "react-cool-inview": "^3.0.1",
     "react-dom": "^18.2.0",
+    "react-use": "^17.5.0",
     "swr": "^2.2.5"
   },
   "devDependencies": {
