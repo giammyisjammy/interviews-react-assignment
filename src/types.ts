@@ -20,10 +20,10 @@ export type Cart = {
   totalItems: number;
 };
 
-export type LoadingState<T> =
+export type LoadingState<Data, Error> =
   | { status: 'idle' }
   | { status: 'loading' }
-  | { status: 'success'; data: T }
+  | { status: 'success'; data: Data }
   | { status: 'error'; error: Error };
 
-export type LoadingStatus = LoadingState<unknown>['status'];
+export type LoadingStatus = LoadingState<never, never>['status'];
