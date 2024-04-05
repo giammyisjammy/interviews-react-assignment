@@ -7,7 +7,7 @@ import SearchAppBar from './SearchAppBar';
 import { Categories } from './Categories';
 import { Products } from './Products';
 
-const PAGE_SIZE = 10;
+const limit = 10;
 
 function App() {
   const { data: cart } = useCart();
@@ -15,7 +15,7 @@ function App() {
   const [category, setCategory] = useState<string | undefined>(undefined);
   const [query, setQuery] = useState<string | undefined>(undefined);
   const useProductsReturns = useProducts({
-    limit: PAGE_SIZE,
+    limit,
     category,
     q: query,
   });
@@ -37,7 +37,7 @@ function App() {
           }}
         />
         <Box flex={1}>
-          <Products {...useProductsReturns} pageSize={PAGE_SIZE} />
+          <Products {...useProductsReturns} pageSize={limit} />
         </Box>
       </Box>
     </Box>
