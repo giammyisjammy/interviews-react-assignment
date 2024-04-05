@@ -1,29 +1,30 @@
-import {
-  Box,
-  Card,
-  CardActions,
-  CardContent,
-  CardMedia,
-  IconButton,
-  Typography,
-  CircularProgress,
-} from '@mui/material';
+import { useState, forwardRef } from 'react';
+
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
+
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
-import { Product } from './types';
-import React, { useState } from 'react';
+
+import type { Product } from './types';
 
 export type ProductCardProps = {
   product: Product;
+  quantity: number;
   onAdd: () => Promise<void>;
   onRemove: () => Promise<void>;
 };
 
-export const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(
-  ({ product, onAdd, onRemove }, ref) => {
+export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
+  ({ product, quantity = 0, onAdd, onRemove }, ref) => {
     const [isLoading, setIsLoading] = useState(false);
     const handleAdd = async () => {
-      console.log('handleAdd');
       setIsLoading(true);
       try {
         await onAdd();
@@ -34,7 +35,6 @@ export const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(
       }
     };
     const handleRemove = async () => {
-      console.log('handleRemove');
       setIsLoading(true);
       try {
         await onRemove();
@@ -87,7 +87,7 @@ export const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(
             </IconButton>
 
             <Typography variant="body1" component="div" mx={1}>
-              {product.itemInCart || 0}
+              {quantity}
             </Typography>
 
             <IconButton

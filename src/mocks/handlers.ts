@@ -1,4 +1,5 @@
 import { delay, http, HttpResponse } from 'msw';
+
 import { names } from './names.ts';
 
 type Product = {
@@ -9,13 +10,22 @@ type Product = {
   category: string;
 };
 
-const categories = ['Fruit', 'Vegetables', 'Dairy', 'Bakery', 'Meat', 'Seafood', 'Snacks', 'Beverages'];
+const categories = [
+  'Fruit',
+  'Vegetables',
+  'Dairy',
+  'Bakery',
+  'Meat',
+  'Seafood',
+  'Snacks',
+  'Beverages',
+];
 
 function randomGroceryCategory() {
   return categories[Math.floor(Math.random() * categories.length)];
 }
 
-// generate a rondom list of product with approriate library
+// generate a random list of product with appropriate library
 const products: Product[] = names.map((name, index) => ({
   id: index,
   name: name,
@@ -37,13 +47,20 @@ function computeCart() {
         quantity,
       };
     });
-  const totalPrice = detailedCart.reduce((acc, { product, quantity }) => acc + product.price * quantity, 0);
-  const totalItems = detailedCart.reduce((acc, { quantity }) => acc + quantity, 0);
-  return HttpResponse.json({
+  const totalPrice = detailedCart.reduce(
+    (acc, { product, quantity }) => acc + product.price * quantity,
+    0
+  );
+  const totalItems = detailedCart.reduce(
+    (acc, { quantity }) => acc + quantity,
+    0
+  );
+
+  return {
     items: detailedCart,
     totalPrice,
     totalItems,
-  });
+  };
 }
 
 export const handlers = [
@@ -60,7 +77,10 @@ export const handlers = [
     const limit = url.searchParams.get('limit') || '10';
 
     const filteredProducts = products.filter((product) => {
-      if (searchQuery && !product.name.toLowerCase().includes(searchQuery.toLowerCase())) {
+      if (
+        searchQuery &&
+        !product.name.toLowerCase().includes(searchQuery.toLowerCase())
+      ) {
         return false;
       }
       if (category && product.category !== category) {
@@ -70,7 +90,10 @@ export const handlers = [
     });
     const realPage = parseInt(page, 10) || 0;
     const realLimit = parseInt(limit, 10) || 10;
-    const pageList = filteredProducts.slice(realPage * realLimit, (realPage + 1) * realLimit);
+    const pageList = filteredProducts.slice(
+      realPage * realLimit,
+      (realPage + 1) * realLimit
+    );
 
     return HttpResponse.json({
       products: pageList,
@@ -78,13 +101,16 @@ export const handlers = [
       hasMore: realPage * realLimit + realLimit < filteredProducts.length,
     });
   }),
-  http.post<never, { productId: number; quantity: number }>('/cart', async ({ request }) => {
-    await delay(1000);
-    const { productId, quantity } = await request.json();
-    const currentQuantity = cart[productId] || 0;
-    cart[productId] = currentQuantity + quantity;
-    return computeCart();
-  }),
+  http.post<never, { productId: number; quantity: number }>(
+    '/cart',
+    async ({ request }) => {
+      await delay(1000);
+      const { productId, quantity } = await request.json();
+      const currentQuantity = cart[productId] || 0;
+      cart[productId] = currentQuantity + quantity;
+      return HttpResponse.json(computeCart());
+    }
+  ),
   http.get('/cart', async () => {
     await delay();
     return HttpResponse.json(computeCart());
@@ -94,6 +120,9 @@ export const handlers = [
 
     cart = {};
 
-    return new HttpResponse(undefined, Math.random() > 0.5 ? { status: 200 } : { status: 500 });
+    return new HttpResponse(
+      undefined,
+      Math.random() > 0.5 ? { status: 200 } : { status: 500 }
+    );
   }),
 ];
