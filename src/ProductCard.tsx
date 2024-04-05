@@ -12,7 +12,7 @@ import {
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 
-import type { Product } from '@/types';
+import type { Product } from './types';
 
 export type ProductCardProps = {
   product: Product;
