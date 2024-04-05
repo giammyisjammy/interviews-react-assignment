@@ -105,7 +105,6 @@ export const handlers = [
     '/cart',
     async ({ request }) => {
       await delay(1000);
-      // return HttpResponse.error();
       const { productId, quantity } = await request.json();
       const currentQuantity = cart[productId] || 0;
       cart[productId] = currentQuantity + quantity;
