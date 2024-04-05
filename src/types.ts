@@ -20,16 +20,11 @@ export type Cart = {
   totalItems: number;
 };
 
-// I know I want to model something along this lines for consistently
-// handle request states but I'm finding difficulties in implementing
-// a good abstractions that interfaces well with useSWR interface. In
-// the interest of time, I keep it and follow the guidelines on useSWR
-// official docs.
+type LoadingState<Data, Error> =
+  | { status: 'idle' }
+  | { status: 'revalidate' }
+  | { status: 'loading' }
+  | { status: 'success'; data: Data }
+  | { status: 'error'; error: Error };
 
-// export type LoadingState<T> =
-//   | { status: 'idle' }
-//   | { status: 'loading' }
-//   | { status: 'success'; data: T }
-//   | { status: 'error'; error: Error };
-
-// export type LoadingStatus = LoadingState<unknown>['status'];
+export type LoadingStatus = LoadingState<never, never>['status'];

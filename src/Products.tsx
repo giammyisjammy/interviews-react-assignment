@@ -9,20 +9,13 @@ import { ProductCard } from './ProductCard.tsx';
 import { useToast } from './Toast/useToast.ts';
 import { UseProductsReturns } from './common/queries.ts';
 import { useAddToCart } from './common/mutations.ts';
+import { match } from 'ts-pattern';
+import { P } from './helpers/match.ts';
 
 export type ProductsProps = UseProductsReturns & {
   pageSize: number;
 };
-export const Products = ({
-  setSize,
-  error,
-  isLoading,
-  isEmpty,
-  size,
-  isLoadingMore,
-  data: productsPages,
-  pageSize,
-}: ProductsProps) => {
+export const Products = ({ pageSize, setSize, ...returns }: ProductsProps) => {
   const { showToast } = useToast();
   const showCartError = () =>
     showToast({
@@ -49,57 +42,65 @@ export const Products = ({
 
   return (
     <Box overflow="scroll" height="100%">
-      {error ? (
-        // error UI
-        <Alert severity="warning">
-          Something went wrong. Please try again later.
-        </Alert>
-      ) : isLoading || !productsPages ? (
-        // loading UI
-        <CircularProgress sx={{ m: 2 }} />
-      ) : // settled UI
-      isEmpty ? (
-        <Alert severity="info">No products available.</Alert>
-      ) : (
-        <Grid container spacing={2} p={2}>
-          {productsPages.map(({ products }, i) =>
-            // `productsPages` is an array of each page's API response.
-            products.map((product, k) => {
-              const isLastItem = (i + 1) * (k + 1) === size * pageSize;
+      {match(returns)
+        .with(P.loading, () => <CircularProgress sx={{ m: 2 }} />)
+        .with(P.error, () => (
+          <Alert severity="warning">
+            Something went wrong. Please try again later.
+          </Alert>
+        ))
+        .with(
+          P.success,
+          // since Grid occupies lots of screen space, it's better to share the
+          // UI with the success state while revalidating.
+          P.revalidate,
+          ({ isEmpty, isLoadingMore, data: productsPages, size }) =>
+            isEmpty ? (
+              <Alert severity="info">No products available.</Alert>
+            ) : (
+              <Grid container spacing={2} p={2}>
+                {productsPages?.map(({ products }, i) =>
+                  // `productsPages` is an array of each page's API response.
+                  products.map((product, k) => {
+                    const isLastItem = (i + 1) * (k + 1) === size * pageSize;
 
-              return (
-                <Grid item xs={4} key={product.id}>
-                  {/* Do not remove this */}
-                  <HeavyComponent />
-                  <ProductCard
-                    product={product}
-                    onAdd={async () => {
-                      try {
-                        await addToCart(product.id, 1);
-                      } catch (error: unknown) {
-                        showCartError();
-                      }
-                    }}
-                    onRemove={async () => {
-                      try {
-                        await addToCart(product.id, -1);
-                      } catch (error: unknown) {
-                        showCartError();
-                      }
-                    }}
-                    ref={isLastItem ? observe : null}
-                  />
-                </Grid>
-              );
-            })
-          )}
-          {isLoadingMore && (
-            <Grid item key="loading-spinner">
-              <CircularProgress />
-            </Grid>
-          )}
-        </Grid>
-      )}
+                    return (
+                      <Grid item xs={4} key={product.id}>
+                        {/* Do not remove this */}
+                        <HeavyComponent />
+                        <ProductCard
+                          product={product}
+                          onAdd={async () => {
+                            try {
+                              await addToCart(product.id, 1);
+                            } catch (error: unknown) {
+                              showCartError();
+                            }
+                          }}
+                          onRemove={async () => {
+                            try {
+                              await addToCart(product.id, -1);
+                            } catch (error: unknown) {
+                              showCartError();
+                            }
+                          }}
+                          ref={isLastItem ? observe : null}
+                        />
+                      </Grid>
+                    );
+                  })
+                )}
+                {isLoadingMore && (
+                  <Grid item key="loading-spinner">
+                    <CircularProgress />
+                  </Grid>
+                )}
+              </Grid>
+            )
+        )
+        .otherwise(() => (
+          <></>
+        ))}
     </Box>
   );
 };

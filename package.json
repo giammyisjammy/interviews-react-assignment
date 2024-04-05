@@ -20,7 +20,9 @@
     "react-cool-inview": "^3.0.1",
     "react-dom": "^18.2.0",
     "react-use": "^17.5.0",
-    "swr": "^2.2.5"
+    "swr": "^2.2.5",
+    "ts-pattern": "^5.1.0",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/react": "^18.2.55",
@@ -31,6 +33,7 @@
     "eslint": "^8.56.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "ts-to-zod": "^3.8.0",
     "typescript": "^5.2.2",
     "vite": "^5.1.0"
   },

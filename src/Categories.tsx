@@ -19,8 +19,8 @@ const categories = [
   'Beverages',
 ];
 
-export type CategoriesProps = { onClick: (category: string) => void };
-export const Categories = ({ onClick }: CategoriesProps) => {
+export type CategoriesProps = { onCategoryClick: (category: string) => void };
+export const Categories = ({ onCategoryClick: onClick }: CategoriesProps) => {
   return (
     <Box minWidth={drawerWidth} sx={{ borderRight: '1px solid grey' }}>
       <List>

@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import { Box, CssBaseline, LinearProgress } from '@mui/material';
 
-import { useCart, useProducts } from './common/queries.ts';
+import { useProducts } from './common/queries.ts';
 
 import SearchAppBar from './SearchAppBar';
 import { Categories } from './Categories';
 import { Products } from './Products';
+import { match } from 'ts-pattern';
+import { P } from './helpers/match.ts';
 
 const limit = 10;
 
 function App() {
-  const { data: cart } = useCart();
-
   const [category, setCategory] = useState<string | undefined>(undefined);
   const [query, setQuery] = useState<string | undefined>(undefined);
   const useProductsReturns = useProducts({
@@ -20,26 +20,26 @@ function App() {
     q: query,
   });
 
-  const { isLoading, data: productsPages } = useProductsReturns;
+  // const { isLoading, data: productsPages } = useProductsReturns;
   return (
     <Box height="100vh" display="flex" flexDirection="column">
       <CssBaseline />
       <SearchAppBar
-        quantity={cart?.totalItems || 0}
-        price={cart?.totalPrice || 0}
         onChange={(query) => {
           setQuery(query);
         }}
       />
-      {/* loading UI */}
-      {(isLoading || !productsPages) && (
-        <Box sx={{ width: '100%' }}>
-          <LinearProgress />
-        </Box>
-      )}
+      {match(useProductsReturns)
+        .with(P.loading, P.revalidate, () => (
+          <Box sx={{ width: '100%' }}>
+            <LinearProgress />
+          </Box>
+        ))
+        .otherwise(() => null)}
+      {/* {(isLoading || !productsPages) && ( )} */}
       <Box flex={1} display="flex" flexDirection="row">
         <Categories
-          onClick={(category) => {
+          onCategoryClick={(category) => {
             setCategory(category);
           }}
         />

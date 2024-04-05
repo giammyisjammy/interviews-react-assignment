@@ -2,15 +2,18 @@ import { useEffect, useState } from 'react';
 
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
+import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import InputBase from '@mui/material/InputBase';
+import LinearProgress from '@mui/material/LinearProgress';
+
 import SearchIcon from '@mui/icons-material/Search';
-import { Badge, LinearProgress } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 
 import { useDebounce } from 'react-use';
+import { useCart } from './common/queries';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -55,25 +58,26 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-export default function SearchAppBar({
-  quantity,
-  price,
-  onChange,
-}: {
-  quantity: number;
-  price: number;
-  onChange: (searchTerm: string) => void;
-}) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [searchKey, setSearchKey] = useState('');
+const debounceTimeMs = 300;
 
+export type SearchAppBarProps = {
+  onChange: (searchTerm: string) => void;
+};
+
+export default function SearchAppBar({ onChange }: SearchAppBarProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const { data: cart } = useCart();
+  const price = cart?.totalPrice || 0;
+  const quantity = cart?.totalItems || 0;
+
+  const [searchKey, setSearchKey] = useState('');
   const [debouncedKey, setDebouncedKey] = useState('');
   useDebounce(
     () => {
       // Typing stopped
       setDebouncedKey(searchKey);
     },
-    2000,
+    debounceTimeMs,
     [searchKey]
   );
 
