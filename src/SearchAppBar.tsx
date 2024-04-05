@@ -7,7 +7,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
-import { Badge } from '@mui/material';
+import { Badge, LinearProgress } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 
 import { useDebounce } from 'react-use';
@@ -64,13 +64,13 @@ export default function SearchAppBar({
   price: number;
   onChange: (searchTerm: string) => void;
 }) {
-  // const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [searchKey, setSearchKey] = useState('');
 
   const [debouncedKey, setDebouncedKey] = useState('');
   useDebounce(
     () => {
-      // setIsLoading('Typing stopped');
+      // Typing stopped
       setDebouncedKey(searchKey);
     },
     2000,
@@ -79,13 +79,13 @@ export default function SearchAppBar({
 
   useEffect(() => {
     const handleSearch = async () => {
-      // setIsLoading(true);
+      setIsLoading(true);
       try {
         await onChange(debouncedKey);
       } catch (error) {
         // noop
       } finally {
-        // setIsLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -113,7 +113,7 @@ export default function SearchAppBar({
               inputProps={{ 'aria-label': 'search' }}
               value={searchKey}
               onChange={({ currentTarget }) => {
-                // setIsLoading(true);
+                setIsLoading(true);
                 setSearchKey(currentTarget.value);
               }}
             />
@@ -131,6 +131,11 @@ export default function SearchAppBar({
           </Badge>
         </Toolbar>
       </AppBar>
+      {isLoading && (
+        <Box sx={{ width: '100%' }}>
+          <LinearProgress />
+        </Box>
+      )}
     </Box>
   );
 }

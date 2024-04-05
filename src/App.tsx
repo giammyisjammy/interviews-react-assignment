@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, CssBaseline } from '@mui/material';
+import { Box, CssBaseline, LinearProgress } from '@mui/material';
 
 import { useCart, useProducts } from './common/queries.ts';
 
@@ -20,6 +20,7 @@ function App() {
     q: query,
   });
 
+  const { isLoading, data: productsPages } = useProductsReturns;
   return (
     <Box height="100vh" display="flex" flexDirection="column">
       <CssBaseline />
@@ -30,6 +31,12 @@ function App() {
           setQuery(query);
         }}
       />
+      {/* loading UI */}
+      {(isLoading || !productsPages) && (
+        <Box sx={{ width: '100%' }}>
+          <LinearProgress />
+        </Box>
+      )}
       <Box flex={1} display="flex" flexDirection="row">
         <Categories
           onClick={(category) => {
